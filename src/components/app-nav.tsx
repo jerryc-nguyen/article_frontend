@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { User } from "lucide-react"
+import { useAuth } from "@/features/auth/contexts/auth-context"
 
 const navItems = [
   { label: "Articles", href: "/articles" },
@@ -18,6 +19,7 @@ const navItems = [
 
 export function AppNav() {
   const pathname = usePathname()
+  const { user, isAuthenticated, logout } = useAuth()
 
   return (
     <nav className="fixed top-0 z-50 flex h-14 w-full items-center border-b bg-background px-6">
@@ -40,18 +42,27 @@ export function AppNav() {
           </Link>
         ))}
       </div>
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-2">
+        {isAuthenticated && user && (
+          <span className="text-sm font-medium">{user.username}</span>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Avatar className="cursor-pointer h-8 w-8">
               <AvatarFallback>
-                <User className="h-4 w-4" />
+                {isAuthenticated && user
+                  ? user.username.charAt(0).toUpperCase()
+                  : <User className="h-4 w-4" />
+                }
               </AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Login</DropdownMenuItem>
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            {isAuthenticated ? (
+              <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={() => window.location.href = "/auth/login"}>Login</DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

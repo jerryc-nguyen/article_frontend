@@ -11,6 +11,21 @@ export async function getArticle(id: number): Promise<Article | undefined> {
   return articles.find((a) => a.id === id)
 }
 
+export async function createArticle(
+  originalContent: string
+): Promise<Article> {
+  const res = await fetch("/api/v1/article_ai_parser", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ original_content: originalContent }),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.message || "Failed to create article")
+  }
+  return res.json()
+}
+
 export async function updateArticle(
   id: number,
   data: Partial<Omit<Article, "id" | "original_content">>

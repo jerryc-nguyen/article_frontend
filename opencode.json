@@ -1,0 +1,21 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"],
+  "plugin": ["superpowers@git+https://github.com/obra/superpowers.git"],
+  "agent": {
+    "ui-builder": {
+      "model": "anthropic/claude-sonnet-4-6",
+      "mode": "subagent",
+      "description": "Specialist for building UI components with shadcn/ui and Tailwind CSS v4."
+    },
+    "review": {
+      "model": "anthropic/claude-sonnet-4-6",
+      "mode": "subagent",
+      "description": "Strict code reviewer for Next.js 16 correctness and shadcn/ui best practices."
+    }
+  },
+  "permission": {
+    "edit": "allow",
+    "bash": "ask"
+  }
+}

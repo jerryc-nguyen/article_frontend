@@ -9,12 +9,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import type { Article, ArticleStatus } from "../api/types"
+import type { Article, ArticleStatus, ArticleUpdatePayload } from "../api/types"
 import { Plus, Trash2 } from "lucide-react"
 
 interface ArticleFormProps {
   article: Article
-  onSave: (data: Partial<Omit<Article, "id" | "original_content">>) => void
+  onSave: (data: Partial<ArticleUpdatePayload>) => void
   isSaving: boolean
 }
 
@@ -49,7 +49,6 @@ export function ArticleForm({ article, onSave, isSaving }: ArticleFormProps) {
       not_for: notFor,
       ethics_safety_notes: ethicsNotes,
       key_facts: keyFacts,
-      status,
     })
   }
 

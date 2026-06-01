@@ -22,3 +22,8 @@ export interface Article {
   key_facts: KeyFact[]
   original_content: string
 }
+
+export type ArticleUpdatePayload = Pick<
+  Article,
+  "title" | "intro_hook" | "main_article_body" | "best_for" | "not_for" | "ethics_safety_notes" | "key_facts"
+>

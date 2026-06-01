@@ -1,38 +1,33 @@
-import type { Article } from "./types"
-import { mockArticles } from "./mock-data"
+import type { Article, ArticleUpdatePayload } from "./types"
+import { api } from "./client"
 
-let articles = [...mockArticles]
-
-export async function getArticles(): Promise<Article[]> {
-  return [...articles]
+export async function getArticles(status?: string): Promise<Article[]> {
+  const query = status ? `?status=${encodeURIComponent(status)}` : ""
+  return api.get<Article[]>(`/article_management${query}`)
 }
 
-export async function getArticle(id: number): Promise<Article | undefined> {
-  return articles.find((a) => a.id === id)
+export async function getArticle(id: number): Promise<Article> {
+  return api.get<Article>(`/article_management/${id}`)
 }
 
 export async function createArticle(
   originalContent: string
 ): Promise<Article> {
-  const res = await fetch("/api/v1/article_ai_parser", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ original_content: originalContent }),
+  return api.post<Article>("/article_ai_parser", {
+    original_content: originalContent,
   })
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err.message || "Failed to create article")
-  }
-  return res.json()
 }
 
 export async function updateArticle(
   id: number,
-  data: Partial<Omit<Article, "id" | "original_content">>
-): Promise<Article | undefined> {
-  const index = articles.findIndex((a) => a.id === id)
-  if (index === -1) return undefined
+  data: Partial<ArticleUpdatePayload>
+): Promise<Article> {
+  return api.put<Article>(`/article_management/${id}`, data)
+}
 
-  articles[index] = { ...articles[index], ...data }
-  return articles[index]
+export async function updateArticleStatus(
+  id: number,
+  status: string
+): Promise<Article> {
+  return api.patch<Article>(`/article_management/${id}/status`, { status })
 }

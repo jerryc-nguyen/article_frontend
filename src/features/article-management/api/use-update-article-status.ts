@@ -1,18 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { updateArticle } from "./article-service"
-import type { ArticleUpdatePayload } from "./types"
+import { updateArticleStatus } from "./article-service"
 
-export function useUpdateArticle() {
+export function useUpdateArticleStatus() {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: ({
       id,
-      data,
+      status,
     }: {
       id: number
-      data: Partial<ArticleUpdatePayload>
-    }) => updateArticle(id, data),
+      status: string
+    }) => updateArticleStatus(id, status),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["articles"] })
       queryClient.invalidateQueries({ queryKey: ["articles", id] })

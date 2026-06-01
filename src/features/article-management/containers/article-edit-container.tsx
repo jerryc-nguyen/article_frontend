@@ -5,7 +5,7 @@ import { useUpdateArticle } from "../api/use-update-article"
 import { ArticleForm } from "../components/article-form"
 import { Button } from "@/components/ui/button"
 import { RotateCw } from "lucide-react"
-import type { Article } from "../api/types"
+import type { ArticleUpdatePayload } from "../api/types"
 import { useRouter } from "next/navigation"
 
 export function ArticleEditContainer({ id }: { id: number }) {
@@ -51,7 +51,7 @@ export function ArticleEditContainer({ id }: { id: number }) {
   }
 
   const handleSave = (
-    data: Partial<Omit<Article, "id" | "original_content">>
+    data: Partial<ArticleUpdatePayload>
   ) => {
     mutate(
       { id, data },

@@ -34,19 +34,20 @@ function deleteCookie(name: string): void {
   document.cookie = `${name}=; path=${COOKIE_PATH}; max-age=0`
 }
 
-export async function login(username: string): Promise<User> {
-  const res = await fetch("/api/v1/auth/login", {
+export async function login(name: string): Promise<User> {
+  const res = await fetch("/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username }),
+    body: JSON.stringify({ name }),
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error(err.message || "Login failed")
+    throw new Error(err.error || "Login failed")
   }
   const data = await res.json()
   setCookie(COOKIE_NAME, data.access_token, COOKIE_MAX_AGE)
-  return data.user as User
+  const payload = decodeJwt(data.access_token)
+  return { username: (payload?.username as string) || name, user_id: payload?.user_id as string }
 }
 
 export function logout(): void {
@@ -57,6 +58,6 @@ export function getUserFromCookie(): User | null {
   const token = getCookie(COOKIE_NAME)
   if (!token) return null
   const payload = decodeJwt(token)
-  if (!payload || !payload.username) return null
-  return { username: payload.username as string }
+  if (!payload || !payload.username || !payload.user_id) return null
+  return { username: payload.username as string, user_id: payload.user_id as string }
 }

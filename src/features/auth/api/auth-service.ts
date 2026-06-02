@@ -1,15 +1,10 @@
+import { api } from "@/commons/api/client"
+import { ROUTES } from "@/commons/api/routes"
 import type { User } from "./types"
 
 const COOKIE_NAME = "access_token"
 const COOKIE_PATH = "/"
 const COOKIE_MAX_AGE = 7 * 24 * 60 * 60 // 7 days
-
-function encodeJwt(payload: Record<string, unknown>): string {
-  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }))
-  const body = btoa(JSON.stringify(payload))
-  const signature = btoa("fake-signature")
-  return `${header}.${body}.${signature}`
-}
 
 function decodeJwt(token: string): Record<string, unknown> | null {
   try {
@@ -35,19 +30,10 @@ function deleteCookie(name: string): void {
 }
 
 export async function login(name: string): Promise<User> {
-  const res = await fetch("/auth/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name }),
-  })
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err.error || "Login failed")
-  }
-  const data = await res.json()
+  const data = await api.post<{ access_token: string }>(ROUTES.AUTH.LOGIN, { name })
   setCookie(COOKIE_NAME, data.access_token, COOKIE_MAX_AGE)
   const payload = decodeJwt(data.access_token)
-  return { username: (payload?.username as string) || name, user_id: payload?.user_id as string }
+  return { username: (payload?.username as string) || name, user_id: payload?.user_id as string | undefined }
 }
 
 export function logout(): void {
@@ -58,6 +44,6 @@ export function getUserFromCookie(): User | null {
   const token = getCookie(COOKIE_NAME)
   if (!token) return null
   const payload = decodeJwt(token)
-  if (!payload || !payload.username || !payload.user_id) return null
-  return { username: payload.username as string, user_id: payload.user_id as string }
+  if (!payload || !payload.username) return null
+  return { username: payload.username as string, user_id: payload.user_id as string | undefined }
 }

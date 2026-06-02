@@ -87,6 +87,7 @@ export function ArticleForm({ article, onSave, isSaving }: ArticleFormProps) {
       not_for: notFor,
       ethics_safety_notes: ethicsNotes,
       key_facts: keyFacts,
+      status,
     })
   }
 

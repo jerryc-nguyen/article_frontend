@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table"
 import { StatusBadge } from "./status-badge"
 import type { Article } from "../api/types"
-import { Trash2 } from "lucide-react"
+import { Trash2, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface ArticleTableProps {
@@ -46,14 +46,25 @@ export function ArticleTable({ articles, onDelete }: ArticleTableProps) {
             <TableCell className="text-muted-foreground">—</TableCell>
             <TableCell className="text-muted-foreground">—</TableCell>
             <TableCell>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onDelete(article.id)}
-                aria-label={`Delete ${article.title}`}
-              >
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Link href={`/articles/${article.id}/view`}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={`View ${article.title}`}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onDelete(article.id)}
+                  aria-label={`Delete ${article.title}`}
+                >
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </div>
             </TableCell>
           </TableRow>
         ))}

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table"
 import { StatusBadge } from "./status-badge"
 import type { Article } from "../api/types"
-import { Trash2, Eye } from "lucide-react"
+import { Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface ArticleTableProps {
@@ -33,12 +33,19 @@ export function ArticleTable({ articles, onDelete }: ArticleTableProps) {
         {articles.map((article) => (
           <TableRow key={article.id}>
             <TableCell>
-              <Link
-                href={`/articles/${article.id}`}
-                className="font-medium hover:underline"
-              >
-                {article.title}
-              </Link>
+              <div className="flex items-center gap-3">
+                <Link
+                  href={`/articles/${article.id}`}
+                  className="font-medium hover:underline"
+                >
+                  {article.title}
+                </Link>
+                <Link href={`/articles/${article.id}/view`}>
+                  <Button variant="outline" size="sm" className="h-7 text-xs">
+                    View detail
+                  </Button>
+                </Link>
+              </div>
             </TableCell>
             <TableCell>
               <StatusBadge status={article.status} />
@@ -46,25 +53,14 @@ export function ArticleTable({ articles, onDelete }: ArticleTableProps) {
             <TableCell className="text-muted-foreground">—</TableCell>
             <TableCell className="text-muted-foreground">—</TableCell>
             <TableCell>
-              <div className="flex items-center gap-1">
-                <Link href={`/articles/${article.id}/view`}>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={`View ${article.title}`}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onDelete(article.id)}
-                  aria-label={`Delete ${article.title}`}
-                >
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
-              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onDelete(article.id)}
+                aria-label={`Delete ${article.title}`}
+              >
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
             </TableCell>
           </TableRow>
         ))}

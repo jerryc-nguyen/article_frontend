@@ -2,12 +2,20 @@
 
 import Link from "next/link"
 import { useArticles } from "../api/use-articles"
+import { useDeleteArticle } from "../api/use-delete-article"
 import { ArticleTable } from "../components/article-table"
 import { Button } from "@/components/ui/button"
 import { RotateCw, Plus } from "lucide-react"
 
 export function ArticleListContainer() {
   const { data: articles, isLoading, isError, error, refetch } = useArticles()
+  const deleteMutation = useDeleteArticle()
+
+  const handleDelete = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this article?")) {
+      deleteMutation.mutate(id)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -46,7 +54,7 @@ export function ArticleListContainer() {
           </Link>
         </div>
       ) : (
-        <ArticleTable articles={articles} />
+        <ArticleTable articles={articles} onDelete={handleDelete} />
       )}
     </div>
   )

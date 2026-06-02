@@ -32,3 +32,7 @@ export async function updateArticleStatus(
 ): Promise<Article> {
   return api.patch<Article>(ROUTES.ARTICLE.STATUS(id), { status })
 }
+
+export async function deleteArticle(id: number): Promise<void> {
+  await api.delete<void>(ROUTES.ARTICLE.BY_ID(id))
+}

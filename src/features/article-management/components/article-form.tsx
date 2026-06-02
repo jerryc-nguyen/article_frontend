@@ -10,12 +10,50 @@ import {
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import type { Article, ArticleStatus, ArticleUpdatePayload } from "../api/types"
-import { Plus, Trash2 } from "lucide-react"
+import {
+  Plus,
+  Trash2,
+  FileText,
+  AlignLeft,
+  BookOpen,
+  Shield,
+  GripVertical,
+} from "lucide-react"
 
 interface ArticleFormProps {
   article: Article
   onSave: (data: Partial<ArticleUpdatePayload>) => void
   isSaving: boolean
+}
+
+function SectionCard({
+  title,
+  icon: Icon,
+  children,
+}: {
+  title: string
+  icon: typeof FileText
+  children: React.ReactNode
+}) {
+  return (
+    <section className="rounded-xl border bg-card">
+      <div className="flex items-center gap-2 border-b px-6 py-3">
+        <Icon className="h-4 w-4 text-muted-foreground" />
+        <h2 className="text-sm font-semibold">{title}</h2>
+      </div>
+      <div className="px-6 py-5 space-y-4">
+        {children}
+      </div>
+    </section>
+  )
+}
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+      {children}
+    </label>
+  )
 }
 
 export function ArticleForm({ article, onSave, isSaving }: ArticleFormProps) {
@@ -53,9 +91,15 @@ export function ArticleForm({ article, onSave, isSaving }: ArticleFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-8 pb-12">
+      {/* Header Bar */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Edit Article</h1>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Edit Article</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Update the article content and metadata
+          </p>
+        </div>
         <div className="flex items-center gap-3">
           <Select
             value={status}
@@ -70,156 +114,191 @@ export function ArticleForm({ article, onSave, isSaving }: ArticleFormProps) {
               <SelectItem value="published">Published</SelectItem>
             </SelectContent>
           </Select>
-          <Button type="submit" disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save"}
+          <Button type="submit" disabled={isSaving} className="min-w-24">
+            {isSaving ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Title</label>
-        <input
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-      </div>
+      {/* Basic Info */}
+      <SectionCard title="Basic Information" icon={FileText}>
+        <div className="space-y-2">
+          <FieldLabel>Title</FieldLabel>
+          <input
+            className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+        <div className="space-y-2">
+          <FieldLabel>Intro / Hook</FieldLabel>
+          <textarea
+            className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm min-h-[100px] placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-y"
+            value={introHook}
+            onChange={(e) => setIntroHook(e.target.value)}
+          />
+        </div>
+      </SectionCard>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Intro / Hook</label>
-        <textarea
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm min-h-[80px]"
-          value={introHook}
-          onChange={(e) => setIntroHook(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">Article Body</label>
+      {/* Article Body */}
+      <SectionCard title="Article Body" icon={AlignLeft}>
+        <div className="space-y-4">
+          {bodySections.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              No sections yet. Add one to get started.
+            </p>
+          )}
+          {bodySections.map((section, i) => (
+            <div
+              key={i}
+              className="rounded-lg border bg-muted/30 p-5 space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <GripVertical className="h-3.5 w-3.5" />
+                  Section {i + 1}
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    setBodySections(bodySections.filter((_, j) => j !== i))
+                  }
+                  className="h-7 text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+              <input
+                className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring font-medium"
+                placeholder="Section heading"
+                value={section.heading}
+                onChange={(e) => {
+                  const next = [...bodySections]
+                  next[i] = { ...next[i], heading: e.target.value }
+                  setBodySections(next)
+                }}
+              />
+              <textarea
+                className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm min-h-[100px] placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-y"
+                placeholder="Write your section content here..."
+                value={section.content}
+                onChange={(e) => {
+                  const next = [...bodySections]
+                  next[i] = { ...next[i], content: e.target.value }
+                  setBodySections(next)
+                }}
+              />
+            </div>
+          ))}
           <Button
             type="button"
             variant="outline"
-            size="sm"
             onClick={() =>
               setBodySections([...bodySections, { heading: "", content: "" }])
             }
+            className="w-full border-dashed gap-2"
           >
-            <Plus className="h-4 w-4 mr-1" /> Add Section
+            <Plus className="h-4 w-4" /> Add Section
           </Button>
         </div>
-        {bodySections.map((section, i) => (
-          <div key={i} className="space-y-2 rounded-lg border p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">
-                Section {i + 1}
-              </span>
+      </SectionCard>
+
+      {/* Audience */}
+      <SectionCard title="Audience" icon={BookOpen}>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <FieldLabel>Best For</FieldLabel>
+            <textarea
+              className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm min-h-[100px] placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-y"
+              value={bestFor}
+              onChange={(e) => setBestFor(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <FieldLabel>Not For</FieldLabel>
+            <textarea
+              className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm min-h-[100px] placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-y"
+              value={notFor}
+              onChange={(e) => setNotFor(e.target.value)}
+            />
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* Metadata */}
+      <SectionCard title="Metadata" icon={Shield}>
+        <div className="space-y-2">
+          <FieldLabel>Ethics / Safety Notes</FieldLabel>
+          <textarea
+            className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm min-h-[80px] placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-y"
+            value={ethicsNotes}
+            onChange={(e) => setEthicsNotes(e.target.value)}
+          />
+        </div>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <FieldLabel>Key Facts</FieldLabel>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setKeyFacts([...keyFacts, { label: "", value: "" }])}
+              className="gap-1.5 h-7 text-xs"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add Fact
+            </Button>
+          </div>
+          {keyFacts.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              No key facts added yet.
+            </p>
+          )}
+          {keyFacts.map((fact, i) => (
+            <div key={i} className="flex gap-3 items-start">
+              <input
+                className="flex-1 rounded-lg border border-input bg-background px-4 py-2.5 text-sm placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                placeholder="Label"
+                value={fact.label}
+                onChange={(e) => {
+                  const next = [...keyFacts]
+                  next[i] = { ...next[i], label: e.target.value }
+                  setKeyFacts(next)
+                }}
+              />
+              <input
+                className="flex-1 rounded-lg border border-input bg-background px-4 py-2.5 text-sm placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                placeholder="Value"
+                value={fact.value}
+                onChange={(e) => {
+                  const next = [...keyFacts]
+                  next[i] = { ...next[i], value: e.target.value }
+                  setKeyFacts(next)
+                }}
+              />
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={() =>
-                  setBodySections(bodySections.filter((_, j) => j !== i))
-                }
+                onClick={() => setKeyFacts(keyFacts.filter((_, j) => j !== i))}
+                className="h-10 text-muted-foreground hover:text-destructive"
               >
-                <Trash2 className="h-4 w-4 text-destructive" />
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
-            <input
-              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-              placeholder="Heading"
-              value={section.heading}
-              onChange={(e) => {
-                const next = [...bodySections]
-                next[i] = { ...next[i], heading: e.target.value }
-                setBodySections(next)
-              }}
-            />
-            <textarea
-              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm min-h-[80px]"
-              placeholder="Content"
-              value={section.content}
-              onChange={(e) => {
-                const next = [...bodySections]
-                next[i] = { ...next[i], content: e.target.value }
-                setBodySections(next)
-              }}
-            />
-          </div>
-        ))}
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Best For</label>
-        <textarea
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm min-h-[60px]"
-          value={bestFor}
-          onChange={(e) => setBestFor(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Not For</label>
-        <textarea
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm min-h-[60px]"
-          value={notFor}
-          onChange={(e) => setNotFor(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Ethics / Safety Notes</label>
-        <textarea
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm min-h-[60px]"
-          value={ethicsNotes}
-          onChange={(e) => setEthicsNotes(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">Key Facts</label>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setKeyFacts([...keyFacts, { label: "", value: "" }])}
-          >
-            <Plus className="h-4 w-4 mr-1" /> Add Fact
-          </Button>
+          ))}
         </div>
-        {keyFacts.map((fact, i) => (
-          <div key={i} className="flex gap-3 items-start">
-            <input
-              className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm"
-              placeholder="Label"
-              value={fact.label}
-              onChange={(e) => {
-                const next = [...keyFacts]
-                next[i] = { ...next[i], label: e.target.value }
-                setKeyFacts(next)
-              }}
-            />
-            <input
-              className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm"
-              placeholder="Value"
-              value={fact.value}
-              onChange={(e) => {
-                const next = [...keyFacts]
-                next[i] = { ...next[i], value: e.target.value }
-                setKeyFacts(next)
-              }}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setKeyFacts(keyFacts.filter((_, j) => j !== i))}
-            >
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
-          </div>
-        ))}
+      </SectionCard>
+
+      {/* Bottom Actions */}
+      <div className="flex items-center justify-between border-t pt-6">
+        <p className="text-xs text-muted-foreground">
+          Changes are saved when you click Save Changes
+        </p>
+        <Button type="submit" disabled={isSaving} className="min-w-24">
+          {isSaving ? "Saving..." : "Save Changes"}
+        </Button>
       </div>
     </form>
   )

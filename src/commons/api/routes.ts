@@ -8,6 +8,6 @@ export const ROUTES = {
     STATUS: (id: number) => `/api/v1/article_management/${id}/status`,
   },
   AI: {
-    PARSE: "/api/v2/article_ai_parser",
+    PARSE: "/api/v1/article_ai_parser",
   },
 } as const

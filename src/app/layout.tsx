@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { AppNav } from "@/components/app-nav";
 import { QueryClientProvider } from "@/lib/providers";
 import { AuthProvider } from "@/features/auth/contexts/auth-context";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
@@ -28,13 +23,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <QueryClientProvider>
           <AuthProvider>
             <AppNav />
-            <main className="pt-14 flex-1">{children}</main>
+            <main className="pt-14 flex-1 flex flex-col">{children}</main>
           </AuthProvider>
         </QueryClientProvider>
       </body>
